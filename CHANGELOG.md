@@ -7,8 +7,10 @@
 - Japanese and Chinese: a *Whole word* or *Word starting with* term never matched inside a sentence,
   since these languages write words without spaces. Letters of Han, Hiragana, Katakana, Thai, Lao,
   Khmer and Myanmar no longer extend a word, so 安全 is found in 安全なロック機能 and a prefix stops at
-  the end of the term. Kana keep their voiced marks (ガ is not カ), and fullwidth Latin letters and
-  digits match their plain forms.
+  the end of the term. A boundary is checked only where the term itself starts or ends with a word
+  character, so 情報 is found in ユーザー情報 and 安全 in Jahia安全. Kana keep their voiced marks
+  (ガ is not カ), decomposed kana match their composed form, compatibility ideographs their standard
+  form, and fullwidth Latin letters and digits their plain forms.
 - A glossary's *Language* list offers every language of the site, also those not yet active on the
   live site (Jahia's own site-language list showed the live-active ones only, so a glossary for a
   language being prepared could not be written or edited).

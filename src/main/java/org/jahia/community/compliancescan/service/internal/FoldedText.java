@@ -36,7 +36,17 @@ final class FoldedText {
         while (i < original.length()) {
             int cp = original.codePointAt(i);
             int next = i + Character.charCount(cp);
-            String folded = fold(cp);
+            String folded;
+            if (next < original.length() && isKanaVoicedMark(original.charAt(next)) && isKana(cp)) {
+                // Decomposed kana (カ + U+3099, as macOS writes file names): compose, so it matches ガ.
+                String composed = Normalizer.normalize(original.substring(i, next + 1), Normalizer.Form.NFC);
+                folded = composed.codePointCount(0, composed.length()) == 1 ? fold(composed.codePointAt(0)) : fold(cp);
+                if (composed.codePointCount(0, composed.length()) == 1) {
+                    next++;
+                }
+            } else {
+                folded = fold(cp);
+            }
             for (int k = 0; k < folded.length(); k++) {
                 int at = out.length();
                 if (at >= starts.length) {
@@ -84,6 +94,15 @@ final class FoldedText {
         return end;
     }
 
+    private static boolean isKanaVoicedMark(char c) {
+        return c == '\u3099' || c == '\u309A';
+    }
+
+    private static boolean isKana(int cp) {
+        Character.UnicodeScript script = Character.UnicodeScript.of(cp);
+        return script == Character.UnicodeScript.HIRAGANA || script == Character.UnicodeScript.KATAKANA;
+    }
+
     private static String fold(int cp) {
         switch (cp) {
             case '‘', '’', 'ʼ', '′', '`' -> {
@@ -102,8 +121,9 @@ final class FoldedText {
                 Character.UnicodeScript script = Character.UnicodeScript.of(cp);
                 if (script == Character.UnicodeScript.HIRAGANA || script == Character.UnicodeScript.KATAKANA
                         || script == Character.UnicodeScript.HAN) {
-                    // Voiced marks are letters of their own in kana: ガ is not カ. Keep CJK as written.
-                    return new String(Character.toChars(cp));
+                    // Voiced marks are letters of their own in kana: ガ is not カ. Keep CJK as written,
+                    // composed (a compatibility ideograph such as U+F900 becomes its standard form).
+                    return Normalizer.normalize(new String(Character.toChars(cp)), Normalizer.Form.NFC);
                 }
                 if (cp >= 0xFF01 && cp <= 0xFF5E) {
                     // Fullwidth ASCII (ＦＲＥＥ, ２０２６) as written in Japanese and Chinese text.

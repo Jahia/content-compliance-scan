@@ -113,6 +113,26 @@ class TermMatcherTest {
     }
 
     @Test
+    void boundariesApplyOnlyWhereTheTermHasAWordCharacter() {
+        assertThat(found("ユーザー情報を保護します", term("情報", MatchMode.WORD))).containsExactly("情報");
+        assertThat(found("ユーザー情報を保護します", term("情報", MatchMode.PREFIX))).containsExactly("情報");
+        assertThat(found("Jahia安全", term("安全", MatchMode.WORD))).containsExactly("安全");
+        assertThat(found("ユーザー情報とユーザーID", term("ユーザー", MatchMode.WORD))).containsExactly("ユーザー");
+    }
+
+    @Test
+    void decomposedKanaMatchTheirComposedForm() {
+        String decomposed = "\u30AB\u3099\u30A4\u30C8\u3099を読む";   // ガイド written as カ+゛ イ ト+゛
+        assertThat(found(decomposed, term("ガイド", MatchMode.WORD))).containsExactly("\u30AB\u3099\u30A4\u30C8\u3099");
+        assertThat(found(decomposed, term("カイト", MatchMode.WORD))).isEmpty();
+    }
+
+    @Test
+    void compatibilityIdeographsMatchTheirStandardForm() {
+        assertThat(found("\uF900", term("\u8C48", MatchMode.WORD))).containsExactly("\uF900");
+    }
+
+    @Test
     void fullwidthLatinIsFolded() {
         assertThat(found("送料ＦＲＥＥ！", term("free", MatchMode.WORD))).containsExactly("ＦＲＥＥ");
     }

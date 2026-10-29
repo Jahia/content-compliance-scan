@@ -45,7 +45,8 @@ public class SiteLanguagesInitializer implements ModuleChoiceListInitializer {
         for (String language : languages) {
             ChoiceListValue value = new ChoiceListValue();
             value.setStringValue(language);
-            value.setDisplayName(LanguageCodeConverters.languageCodeToLocale(language).getDisplayName(locale));
+            value.setDisplayName(LanguageCodeConverters.languageCodeToLocale(language)
+                    .getDisplayName(locale != null ? locale : Locale.ENGLISH));
             choices.add(value);
         }
         Collections.sort(choices);
@@ -56,14 +57,15 @@ public class SiteLanguagesInitializer implements ModuleChoiceListInitializer {
         if (context == null) {
             return null;
         }
-        try {
-            for (String entry : new String[]{"contextNode", "contextParent"}) {
+        // The edited node, else its parent when creating; a failure on one still tries the other.
+        for (String entry : new String[]{"contextNode", "contextParent"}) {
+            try {
                 if (context.get(entry) instanceof JCRNodeWrapper node && node.getResolveSite() != null) {
                     return node.getResolveSite();
                 }
+            } catch (RepositoryException e) {
+                logger.warn("Could not resolve the site of a glossary from its {}: {}", entry, e.toString());
             }
-        } catch (RepositoryException e) {
-            logger.warn("Could not resolve the site of a glossary: {}", e.toString());
         }
         return null;
     }
