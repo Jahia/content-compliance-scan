@@ -1,6 +1,6 @@
 {
   "name": "@jahia/content-compliance-scan",
-  "version": "1.0.1",
+  "version": "1.0.2-SNAPSHOT",
   "packageManager": "yarn@1.22.22",
   "description": "Page Builder action - scans the active page against the site's glossaries of non-authorised terms",
   "author": "Stephane Monier <smonier@jahia.com>",

@@ -9,7 +9,7 @@
     <groupId>org.jahia.community</groupId>
     <artifactId>content-compliance-scan</artifactId>
     <name>Content Compliance Scan</name>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <description>Checks content against the site's glossaries of non-authorised terms, per language: a Page Builder action for the page being edited and a site compliance dashboard in jContent, with CSV and JSON exports.</description>
 
