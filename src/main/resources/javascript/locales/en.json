@@ -1,0 +1,73 @@
+{
+    "content-compliance-scan": {
+        "action": {
+            "open": "Compliance scan"
+        },
+        "dialog": {
+            "title": "Compliance scan of this page",
+            "running": "Scanning the content of the page...",
+            "close": "Close",
+            "rescan": "Scan again",
+            "error": {
+                "title": "The scan did not run",
+                "message": "The page could not be scanned. Check that you can edit it, then scan again."
+            }
+        },
+        "status": {
+            "safe": "Compliant",
+            "issues": "Not compliant",
+            "noGlossary": "Not checked"
+        },
+        "summary": {
+            "safe": "No non-authorised term in the {{count}} content read ({{language}}).",
+            "safe_plural": "No non-authorised term in the {{count}} contents read ({{language}}).",
+            "safe_one": "No non-authorised term in the {{count}} content read ({{language}}).",
+            "safe_other": "No non-authorised term in the {{count}} contents read ({{language}}).",
+            "issues": "{{count}} use of a non-authorised term, in {{contents}} content ({{language}}).",
+            "issues_plural": "{{count}} uses of non-authorised terms, in {{contents}} contents ({{language}}).",
+            "issues_one": "{{count}} use of a non-authorised term, in {{contents}} content ({{language}}).",
+            "issues_other": "{{count}} uses of non-authorised terms, in {{contents}} contents ({{language}}).",
+            "noGlossary": "No glossary applies to {{language}}: nothing was checked."
+        },
+        "banner": {
+            "beforePublishing": {
+                "title": "Do not publish this page yet",
+                "message": "Replace or remove each term below before publishing. This version of the scan reports the terms only: it does not block publication."
+            },
+            "noGlossary": {
+                "title": "No glossary for {{language}}",
+                "message": "Create a Compliance glossary in the site's contents (jContent, Content folders), set its language to {{language}} and add its non-authorised terms."
+            },
+            "notFramed": {
+                "title": "Listings not included",
+                "message": "Content that listings and other components fetch from elsewhere is read only when the scan runs from Page Builder. Open the page in Page Builder to include it."
+            },
+            "truncated": {
+                "title": "Scan stopped at its limit",
+                "message": "The page holds more content or issues than one scan reads. Fix the issues listed, then scan again."
+            }
+        },
+        "glossaries": {
+            "applied": "Glossaries applied:",
+            "item": "{{title}} ({{count}} term)",
+            "item_plural": "{{title}} ({{count}} terms)",
+            "item_one": "{{title}} ({{count}} term)",
+            "item_other": "{{title}} ({{count}} terms)"
+        },
+        "origin": {
+            "reference": "Reused content",
+            "shared": "Shared content",
+            "referenceHint": "Shown on this page through the reference {{path}}. Editing it changes every page that reuses it; it is published on its own.",
+            "sharedHint": "Stored outside this page (a listing, for one) and shown on other pages too; it is published on its own.",
+            "sharedAreaHint": "Stored on the page {{path}} (header, footer) and shown on this page and others; it is published with that page."
+        },
+        "issue": {
+            "edit": "Edit",
+            "editLabel": "Edit {{name}}",
+            "term": "Term",
+            "reason": "Reason",
+            "alternative": "Write instead",
+            "listLabel": "Non-authorised terms found, by content"
+        }
+    }
+}
