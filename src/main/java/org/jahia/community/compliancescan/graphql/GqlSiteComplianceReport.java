@@ -55,6 +55,13 @@ public class GqlSiteComplianceReport {
         return report.scannedContents();
     }
 
+    /** @return number of locations that could not be read */
+    @GraphQLField
+    @GraphQLDescription("Pages and content items that could not be read (missing type, provider error) and are not in the report")
+    public int getSkippedLocations() {
+        return report.skippedLocations();
+    }
+
     /** @return whether a limit stopped the scan */
     @GraphQLField
     @GraphQLDescription("True when a limit stopped the scan before the whole site was read")

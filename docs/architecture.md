@@ -64,8 +64,13 @@ included. Each term becomes one regular expression (quoted, Unicode classes):
 | `prefix` | no letter or digit before, any letters or digits after |
 | `anywhere` | nothing around |
 
-White space inside a term matches any run of white space. Two glossary entries with the same folded
-term at the same place are reported once. `Excerpt` keeps about 60 characters on each side, cut at
+White space inside a term matches any run of white space. Two entries of the same glossary with the
+same folded term at the same place are reported once; entries of different glossaries are each
+reported, so each glossary owner sees their own reason.
+
+`PlainText.fromHtml` strips tags in one forward pass (every search starts where the previous one
+ended; an unclosed tag, comment or script drops the rest of the value), so a hostile value stays
+linear: the regular expressions it replaces took 23 s on 160 KB of `<`. `Excerpt` keeps about 60 characters on each side, cut at
 spaces.
 
 ## API
@@ -99,8 +104,12 @@ All checks run on the server; the button and the app entry only decide what is d
 
 | Field | Refused when |
 |---|---|
-| `scanPage` | guest; invalid language; the path is missing, unreadable or not a `jnt:page`; the caller lacks `jcr:write` on the page; the module is not enabled on the site |
-| `scanSite` | guest; invalid language or site key; the site is missing or unreadable; the caller lacks `jContentAccess` on the site; the module is not enabled on the site |
+| `scanPage` | guest; invalid language; the path is missing, unreadable or not a `jnt:page`; the caller lacks `jcr:write` on the page; the module is not enabled on the site; more than 5 `scanPage` in one request |
+| `scanSite` | guest; invalid language or site key; the site is missing or unreadable; the caller lacks `jContentAccess` on the site; the module is not enabled on the site; more than 1 `scanSite` in one request |
+
+"Enabled" means enabled on the site directly or through a module the site enables
+(`getInstalledModulesWithAllDependencies`), as the button and jContent check it. The per-request
+caps stop one request from running a scan many times through aliases.
 
 The scans never open a system session: what the caller cannot read, glossaries included, is not
 scanned. Both are read-only queries, so the CSRF guard has nothing to decide.
@@ -112,7 +121,9 @@ scanned. Both are read-only queries, so the CSRF guard has nothing to decide.
 | Page | 5,000 | 1,000 |
 | Site | 20,000 | 5,000 |
 
-Past a limit the report sets `truncated` and the UI says so. Rendered paths taken from the dialog:
+Past a limit the report sets `truncated` and the UI says so. A page or content item that cannot be
+read (a `RepositoryException`: a type definition gone, a provider down) is skipped and counted in
+`skippedLocations`; in a page scan, a rendered path or ancestor that cannot be read is skipped. Rendered paths taken from the dialog:
 2,000. On a site of 86 pages and 2,272 contents the site scan takes about a second.
 
 ## Known gaps
@@ -122,7 +133,14 @@ Past a limit the report sets `truncated` and the UI says so. Rendered paths take
 - A page scan can list an ancestor's area that the page's template does not display (an area name
   used only on the home page template).
 - The site scan does not follow content references to other sites.
+- The glossary language list (`choicelist[siteLanguage]`) offers the languages active in live only.
+- The glossary type shows in Page Builder's add-content menu (content folders accept only
+  `jmix:droppableContent`); a glossary on a page is never read.
+- A translator with `jcr:modifyProperties_<lang>` but no `jcr:write` on the page cannot run the page
+  scan.
 - The page scan opened from jContent's page list (not Page Builder) has no frame, so listing items
   are not read; the dialog says so.
 - Publication is not blocked: [`publication-blocking.md`](publication-blocking.md).
-- No Cypress suite yet; unit tests cover matching, rich text and excerpts.
+- No Cypress suite yet; unit tests cover matching, rich text (hostile values included), excerpts,
+the rendered-path filter and match modes. The permission refusals are verified by hand
+(GraphQL probes), not by tests.

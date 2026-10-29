@@ -70,6 +70,8 @@ public class ComplianceScanServiceImpl implements ComplianceScanService {
         List<ComplianceIssue> issues = new ArrayList<>();
         int issueCount;
         int scanned;
+        /** Locations a site scan could not read. */
+        int skipped;
         boolean truncated;
 
         Scan(TermMatcher matcher, Locale uiLocale, boolean followReferences, int maxNodes, int maxIssues) {
@@ -105,19 +107,24 @@ public class ComplianceScanServiceImpl implements ComplianceScanService {
         Scan scan = new Scan(matcher, uiLocale, true, MAX_SCANNED_NODES, MAX_ISSUES);
         walk(page, IssueOrigin.PAGE, null, scan, true);
         for (JCRNodeWrapper area : ancestorAreas(page, sitePath)) {
-            walk(area, IssueOrigin.SHARED, area.getParent().getPath(), scan, false);
+            try {
+                walk(area, IssueOrigin.SHARED, area.getParent().getPath(), scan, false);
+            } catch (RepositoryException e) {
+                logger.debug("Ancestor area {} not readable, skipped: {}", area.getPath(), e.toString());
+            }
         }
-        for (String path : renderedRoots(page, sitePath, renderedPaths)) {
+        for (String path : renderedRoots(page.getPath(), sitePath, renderedPaths)) {
             if (scan.full()) {
                 break;
             }
+            // The paths come from the browser: one that is malformed or unreadable is skipped, not fatal.
             try {
                 JCRNodeWrapper node = session.getNode(path);
                 if (!node.isNodeType(PAGE_TYPE)) {
                     walk(node, IssueOrigin.SHARED, null, scan, false);
                 }
-            } catch (PathNotFoundException e) {
-                logger.debug("Rendered path {} not readable, skipped", path);
+            } catch (RepositoryException | IllegalArgumentException e) {
+                logger.debug("Rendered path skipped: {}", e.toString());
             }
         }
         ScanStatus status = scan.issues.isEmpty() ? ScanStatus.SAFE : ScanStatus.ISSUES;
@@ -133,7 +140,7 @@ public class ComplianceScanServiceImpl implements ComplianceScanService {
         GlossaryReader.Glossaries glossaries = GlossaryReader.read(session, sitePath, language);
         TermMatcher matcher = new TermMatcher(glossaries.terms());
         if (matcher.isEmpty()) {
-            return new SiteComplianceReport(site.getSiteKey(), language, ScanStatus.NO_GLOSSARY, 0, 0, false,
+            return new SiteComplianceReport(site.getSiteKey(), language, ScanStatus.NO_GLOSSARY, 0, 0, 0, false,
                     glossaries.glossaries(), List.of(), List.of());
         }
 
@@ -151,8 +158,8 @@ public class ComplianceScanServiceImpl implements ComplianceScanService {
             scanContentItems(session.getNode(sitePath + "/contents"), scan, locations);
         }
         ScanStatus status = locations.isEmpty() ? ScanStatus.SAFE : ScanStatus.ISSUES;
-        return new SiteComplianceReport(site.getSiteKey(), language, status, pages, scan.scanned, scan.truncated,
-                glossaries.glossaries(), List.copyOf(locations), termUsages(locations));
+        return new SiteComplianceReport(site.getSiteKey(), language, status, pages, scan.scanned, scan.skipped,
+                scan.truncated, glossaries.glossaries(), List.copyOf(locations), termUsages(locations));
     }
 
     private static List<JCRNodeWrapper> sitePages(JCRSessionWrapper session, String sitePath) throws RepositoryException {
@@ -186,7 +193,14 @@ public class ComplianceScanServiceImpl implements ComplianceScanService {
             throws RepositoryException {
         List<ComplianceIssue> issues = new ArrayList<>();
         scan.issues = issues;
-        walk(node, IssueOrigin.PAGE, null, scan, true);
+        try {
+            walk(node, IssueOrigin.PAGE, null, scan, true);
+        } catch (RepositoryException e) {
+            // One unreadable node (a missing type definition, a provider down) must not fail the site report.
+            scan.skipped++;
+            logger.warn("Compliance scan skipped {}: {}", node.getPath(), e.toString());
+            return;
+        }
         if (!issues.isEmpty()) {
             locations.add(new LocationReport(node.getPath(), node.getIdentifier(), node.getDisplayableName(), kind,
                     node.getPrimaryNodeType().getLabel(scan.uiLocale), List.copyOf(issues)));
@@ -241,7 +255,13 @@ public class ComplianceScanServiceImpl implements ComplianceScanService {
             if (home != null && ancestor.getPath().equals(home.getPath())) {
                 break;
             }
-            ancestor = ancestor.getParent();
+            try {
+                ancestor = ancestor.getParent();
+            } catch (RepositoryException e) {
+                // An ancestor the caller cannot read ends the climb: its chrome is not theirs to see.
+                logger.debug("Ancestor of {} not readable: {}", ancestor.getPath(), e.toString());
+                break;
+            }
         }
         return areas;
     }
@@ -250,12 +270,11 @@ public class ComplianceScanServiceImpl implements ComplianceScanService {
      * The rendered paths worth reading: in the page's site, outside the page's own tree (walked
      * already) and not an ancestor of the page.
      */
-    private static Set<String> renderedRoots(JCRNodeWrapper page, String sitePath, Collection<String> renderedPaths) {
+    static Set<String> renderedRoots(String pagePath, String sitePath, Collection<String> renderedPaths) {
         Set<String> roots = new LinkedHashSet<>();
         if (renderedPaths == null) {
             return roots;
         }
-        String pagePath = page.getPath();
         for (String path : renderedPaths) {
             if (roots.size() >= MAX_RENDERED_PATHS) {
                 break;
@@ -291,7 +310,7 @@ public class ComplianceScanServiceImpl implements ComplianceScanService {
             }
         }
 
-        for (JCRNodeIteratorWrapper it = node.getNodes(); it.hasNext(); ) {
+        for (JCRNodeIteratorWrapper it = node.getNodes(); it.hasNext() && !scan.full(); ) {
             JCRNodeWrapper child = (JCRNodeWrapper) it.nextNode();
             // j:translation_*, j:acl, j:conditionalVisibility, vanityUrlMapping...: system children, no visitor text.
             if (!child.getName().startsWith("j:") && !child.isNodeType("jnt:vanityUrls")) {

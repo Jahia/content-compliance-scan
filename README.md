@@ -9,6 +9,9 @@ maintained by Legal in jContent. Two entry points:
 - **Additional > Compliance** in jContent: the whole site in one language, terms ranked by use,
   pages and content items with their issues, **Export CSV** and **Export JSON**.
 
+Latest release: [1.0.0](https://github.com/Jahia/content-compliance-scan/releases/tag/content-compliance-scan-1.0.0)
+([changelog](CHANGELOG.md)).
+
 This version is informational: a page with issues is flagged "do not publish yet", publication is
 not blocked ([why, and how it could be](docs/publication-blocking.md)).
 
@@ -38,14 +41,16 @@ not blocked ([why, and how it could be](docs/publication-blocking.md)).
 | `ccs:glossary` (`mix:title`, `jmix:list`, category `ccsmix:complianceContent`) | `language` (site languages), `description`; children `ccs:glossaryTerm` |
 | `ccs:glossaryTerm` | `term` (primary item, so jContent lists the term), `matchMode` (`word`, `prefix`, `anywhere`), `reason`, `alternative` |
 
-Labels and tooltips in English and French.
+Labels and tooltips in English and French. Icons in `src/main/resources/icons/`, rendered from Lucide
+glyphs listed in `icons.json` (AIStartupKit `.agents/tools/content-type-icons`): `book-a`
+(glossary), `whole-word` (term), `shield-check` (the Compliance category).
 
 ## Permissions
 
 | Entry point | Needs | Checked |
 |---|---|---|
-| Page scan (`complianceScan.scanPage`) | `jcr:write` on the page, module enabled on the site | by the server; the button uses the same checks to show itself |
-| Site dashboard (`complianceScan.scanSite`) | `jContentAccess` on the site, module enabled on the site | by the server; jContent uses the same checks to list the app |
+| Page scan (`complianceScan.scanPage`) | `jcr:write` on the page, module enabled on the site (directly or through a module the site enables) | by the server; the button uses the same checks to show itself |
+| Site dashboard (`complianceScan.scanSite`) | `jContentAccess` on the site, module enabled on the site (same rule) | by the server; jContent uses the same checks to list the app |
 
 Scans read with the caller's own rights, in the default workspace, and never write. Details:
 [`docs/architecture.md`](docs/architecture.md).
@@ -60,19 +65,23 @@ mvn clean install
 ```
 
 The jar must hold `javascript/apps/remoteEntry.js` and `javascript/apps/package.json`. Deploy
-`target/content-compliance-scan-<version>.jar` with the module manager or the provisioning API:
+`target/content-compliance-scan-<version>.jar` with the module manager or the provisioning API. A
+version without `-SNAPSHOT` that is already installed is skipped (`already installed, skip` in the
+log): add `"forceUpdate":true` to replace it.
 
 ```bash
 curl -u root:<password> http://localhost:8080/modules/api/provisioning \
-  -F 'script=[{"installOrUpgradeBundle":"content-compliance-scan-1.0.0-SNAPSHOT.jar","start":true}];type=application/json' \
-  -F file=@target/content-compliance-scan-1.0.0-SNAPSHOT.jar
+  -F 'script=[{"installOrUpgradeBundle":"content-compliance-scan-<version>.jar","start":true}];type=application/json' \
+  -F file=@target/content-compliance-scan-<version>.jar
 ```
 
-`mvn clean install` runs the unit tests (term matching, rich text to text, excerpts).
+`mvn clean install` runs the unit tests (term matching, rich text to text, excerpts). GitHub Actions
+(`.github/workflows/build.yml`) runs the same build on every pull request and push to `main`, and
+builds the release jar from the tag: `gh workflow run build.yml --ref content-compliance-scan-X.Y.Z`.
 
 ## Compatibility
 
-Jahia 8.2 (tested on 8.2.3.2) with jContent 3.7 or later (UI tested on 3.7.1, API also on 3.8.0),
+Jahia 8.2 (tested on 8.2.3.2) with jContent 3.7 or later, enforced by `Jahia-Depends: jcontent=[3.7,4)` (UI tested on 3.7.1, API also on 3.8.0),
 graphql-dxm-provider 3.5 or later, Java 17. React 18 and Moonstone 2.20 from the jContent host.
 
 ## Licence

@@ -62,8 +62,9 @@ public final class TermMatcher {
     }
 
     /**
-     * Finds every term in a text. When two glossary entries with the same folded term match at the
-     * same place, the first one is kept.
+     * Finds every term in a text. Two entries of the same glossary with the same folded term at the same
+     * place are reported once; entries of different glossaries are each reported, with their own
+     * reason, so every glossary owner sees their rule.
      *
      * @param text plain text, may be {@code null}
      * @return the matches, by position in the text
@@ -83,7 +84,7 @@ public final class TermMatcher {
                 }
                 int start = folded.originalStart(m.start());
                 int end = folded.originalEnd(m.end());
-                if (seen.add(c.folded() + '\u0000' + start + ':' + end)) {
+                if (seen.add(c.term().glossaryPath() + '\u0000' + c.folded() + '\u0000' + start + ':' + end)) {
                     matches.add(new Match(c.term(), start, end));
                 }
             }

@@ -90,14 +90,23 @@ Summary.propTypes = {
     language: PropTypes.string.isRequired
 };
 
-const TermsTable = ({terms}) => {
+const TermsTable = ({terms, glossaryTitles}) => {
     const {t} = useTranslation(NS);
     const columns = [
         {
             key: 'term',
             label: t('dashboard.terms.term'),
             width: '22%',
-            render: ({value}) => <Typography weight="semiBold" className={styles.wrap}>{value}</Typography>
+            render: ({value, data}) => (
+                <div className={styles.cellText}>
+                    <Typography weight="semiBold" className={styles.wrap}>{value}</Typography>
+                    {glossaryTitles.size > 1 && (
+                        <Typography variant="caption" className={`${styles.wrap} ${styles.muted}`}>
+                            {glossaryTitles.get(data.glossaryPath) || data.glossaryPath}
+                        </Typography>
+                    )}
+                </div>
+            )
         },
         {
             key: 'reason',
@@ -126,9 +135,12 @@ const TermsTable = ({terms}) => {
     );
 };
 
-TermsTable.propTypes = {terms: PropTypes.array.isRequired};
+TermsTable.propTypes = {
+    terms: PropTypes.array.isRequired,
+    glossaryTitles: PropTypes.instanceOf(Map).isRequired
+};
 
-const LocationsTable = ({locations, siteKey, language}) => {
+const LocationsTable = ({locations, glossaryTitles, siteKey, language}) => {
     const {t} = useTranslation(NS);
     const [page, setPage] = useState(1);
     const [perPage, setPerPage] = useState(PER_PAGE_OPTIONS[0]);
@@ -169,12 +181,21 @@ const LocationsTable = ({locations, siteKey, language}) => {
             key: 'type',
             label: t('dashboard.locations.type'),
             width: '17%',
-            render: ({value}) => (value.kind === 'location' ? (
-                <div className={styles.cellText}>
-                    <Typography variant="caption" weight="semiBold">{t(`dashboard.kind.${value.location.kind.toLowerCase()}`)}</Typography>
-                    <Typography variant="caption" className={styles.muted}>{value.location.typeLabel}</Typography>
-                </div>
-            ) : <Chip color="danger" label={value.issue.term}/>)
+            render: ({value}) => {
+                if (value.kind !== 'location') {
+                    return <Chip color="danger" label={value.issue.term}/>;
+                }
+                const kindLabel = t(`dashboard.kind.${value.location.kind.toLowerCase()}`);
+                // A page's type label is "Page" too: show the type only when it says more than the kind.
+                return (
+                    <div className={styles.cellText}>
+                        <Typography variant="caption" weight="semiBold">{kindLabel}</Typography>
+                        {value.location.typeLabel && value.location.typeLabel !== kindLabel && (
+                            <Typography variant="caption" className={styles.muted}>{value.location.typeLabel}</Typography>
+                        )}
+                    </div>
+                );
+            }
         },
         {
             key: 'detail',
@@ -182,7 +203,16 @@ const LocationsTable = ({locations, siteKey, language}) => {
             width: '25%',
             render: ({value}) => (value.kind === 'location'
                 ? <Typography>{t('dashboard.locations.count', {count: value.location.issueCount})}</Typography>
-                : <Typography variant="caption" className={styles.wrap}>{value.issue.reason || ''}</Typography>)
+                : (
+                    <div className={styles.cellText}>
+                        <Typography variant="caption" className={styles.wrap}>{value.issue.reason || ''}</Typography>
+                        {glossaryTitles.size > 1 && (
+                            <Typography variant="caption" className={`${styles.wrap} ${styles.muted}`}>
+                                {glossaryTitles.get(value.issue.glossaryPath) || value.issue.glossaryPath}
+                            </Typography>
+                        )}
+                    </div>
+                ))
         },
         {
             key: 'actions',
@@ -245,6 +275,7 @@ const LocationsTable = ({locations, siteKey, language}) => {
 
 LocationsTable.propTypes = {
     locations: PropTypes.array.isRequired,
+    glossaryTitles: PropTypes.instanceOf(Map).isRequired,
     siteKey: PropTypes.string.isRequired,
     language: PropTypes.string.isRequired
 };
@@ -281,6 +312,7 @@ export const ComplianceDashboard = ({siteKey, language}) => {
     }, [run]);
 
     const {report, scannedAt} = result;
+    const glossaryTitles = useMemo(() => new Map((report?.glossaries || []).map(g => [g.path, g.title])), [report]);
     const languageLabel = languageName(language, uiLanguage);
 
     const header = (
@@ -319,6 +351,11 @@ export const ComplianceDashboard = ({siteKey, language}) => {
                                 <Typography>{t('banner.noGlossary.message', {language: languageLabel})}</Typography>
                             </Banner>
                         )}
+                        {report.skippedLocations > 0 && (
+                            <Banner variant="warning" title={t('banner.truncated.title')}>
+                                <Typography>{t('dashboard.skipped', {count: report.skippedLocations})}</Typography>
+                            </Banner>
+                        )}
                         {report.truncated && (
                             <Banner variant="warning" title={t('banner.truncated.title')}>
                                 <Typography>{t('dashboard.truncated')}</Typography>
@@ -343,13 +380,13 @@ export const ComplianceDashboard = ({siteKey, language}) => {
                             <section className={styles.card}>
                                 <Typography component="h2" variant="heading">{t('dashboard.terms.title')}</Typography>
                                 {report.terms.length > 0
-                                    ? <TermsTable terms={report.terms}/>
+                                    ? <TermsTable terms={report.terms} glossaryTitles={glossaryTitles}/>
                                     : <EmptyData message={t('dashboard.terms.empty')}/>}
                             </section>
                             <section className={styles.card}>
                                 <Typography component="h2" variant="heading">{t('dashboard.locations.title')}</Typography>
                                 {report.locations.length > 0
-                                    ? <LocationsTable locations={report.locations} siteKey={siteKey} language={language}/>
+                                    ? <LocationsTable locations={report.locations} glossaryTitles={glossaryTitles} siteKey={siteKey} language={language}/>
                                     : <EmptyData message={t('dashboard.locations.empty')}/>}
                             </section>
                         </>

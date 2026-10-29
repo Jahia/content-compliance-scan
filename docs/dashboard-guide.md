@@ -12,12 +12,15 @@ site, and the module enabled on it.
 - **Compliant**, **Not compliant** or **Not checked** (no glossary for this language), and the number
   of uses on how many pages and content items.
 - How much was read (pages and contents), and the glossaries applied; click one to open it.
+- A warning when pages or content items could not be read (a missing content type, an external
+  provider down): they are left out of the report and the Jahia log names them.
 - A warning when the site is larger than one scan reads (20,000 contents or 5,000 issues): the report
   then covers the first part of the site only.
 
 ## Terms found
 
-One row per term used: the reason and suggested wording, the number of uses, and the number of pages
+One row per term and glossary (the glossary is named under the term when several apply): the reason
+and suggested wording, the number of uses, and the number of pages
 and content items that use it. The most used terms come first: they are where a wording change pays
 off most.
 
@@ -38,7 +41,7 @@ total can be lower than the sum of the page scans.
 ## Exports
 
 - **Export CSV**: one row per issue, with the page or content item, the content, the field, the term,
-  the matched text, the sentence, the reason, the suggested wording and the glossary. It opens in
+  the matched text, the sentence, the reason, the suggested wording, the glossary name and its path. It opens in
   Excel with accents intact.
 - **Export JSON**: the whole report as the dashboard received it, with the time of the scan.
 

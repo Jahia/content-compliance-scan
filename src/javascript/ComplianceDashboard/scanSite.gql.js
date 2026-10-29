@@ -9,6 +9,7 @@ export const SCAN_SITE = gql`
                 status
                 scannedPages
                 scannedContents
+                skippedLocations
                 truncated
                 glossaries {
                     path

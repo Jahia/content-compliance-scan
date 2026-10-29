@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.0 (unreleased)
+## 1.0.0 (2026-10-29)
 
 ### Added
 
@@ -19,6 +19,9 @@
 - Content types `ccs:glossary` (one per language, under the site's contents) and
   `ccs:glossaryTerm` (term, match mode `word`/`prefix`/`anywhere`, reason, suggested wording), EN and
   FR labels and tooltips. Matching ignores case and accents, and phrases match across any white space.
+- Several glossaries per language: all apply, each issue names its glossary, and a term two
+  glossaries share is reported for each with its own reason.
+- Content-type icons (Lucide glyphs) for the glossary, the term and the Compliance category.
 - GraphQL `complianceScan { scanPage, scanSite }` and the exported `ComplianceScanService`.
 - Documentation: `docs/` guides for glossary maintainers, editors and dashboard users, the
   architecture, and the publication-blocking analysis.
@@ -27,8 +30,11 @@
 
 - Both scans run with the caller's own session (default workspace, read-only, no system session).
   `scanPage` needs `jcr:write` on the page, `scanSite` needs `jContentAccess` on the site, and both
-  refuse guests and sites where the module is not enabled; paths sent by the browser are restricted
-  to the page's site.
+  refuse guests and sites where the module is not enabled (directly or through a dependency); paths
+  sent by the browser are restricted to the page's site, and one unreadable path or location is
+  skipped instead of failing the scan. One request runs at most 5 page scans and 1 site scan, and
+  rich text is read in linear time whatever its markup.
+- Requires jContent 3.7 or later (`Jahia-Depends: jcontent=[3.7,4)`).
 
 ### Fixed (before release)
 

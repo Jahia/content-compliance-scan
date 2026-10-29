@@ -9,9 +9,9 @@
     <groupId>org.jahia.community</groupId>
     <artifactId>content-compliance-scan</artifactId>
     <name>Content Compliance Scan</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>bundle</packaging>
-    <description>Page Builder action - scans every content of the active page against the site's glossaries of non-authorised terms, per language, and lists each use.</description>
+    <description>Checks content against the site's glossaries of non-authorised terms, per language: a Page Builder action for the page being edited and a site compliance dashboard in jContent, with CSV and JSON exports.</description>
 
     <licenses>
         <license>
@@ -30,7 +30,7 @@
 
     <properties>
         <!-- jcontent hosts the action; graphql-dxm-provider serves the complianceScan query. -->
-        <jahia-depends>default,jcontent,graphql-dxm-provider</jahia-depends>
+        <jahia-depends>default,jcontent=[3.7,4),graphql-dxm-provider</jahia-depends>
         <jahia-module-type>module</jahia-module-type>
         <yarn.arguments>build:production</yarn.arguments>
         <!-- The 8.2 parent sets <source>11</source> on the compiler plugin: release takes precedence. -->
@@ -219,6 +219,8 @@
                         <Bundle-Name>Content Compliance Scan</Bundle-Name>
                         <_dsannotations>*</_dsannotations>
                         <Export-Package>org.jahia.community.compliancescan.model,org.jahia.community.compliancescan.service.spi</Export-Package>
+                        <!-- Named explicitly: the GraphQL packages come from graphql-dxm-provider, whose
+                             transitive dependencies are excluded, so the bundle plugin would not infer them. -->
                         <Import-Package>
                             org.jahia.modules.graphql.provider.dxm,
                             org.jahia.modules.graphql.provider.dxm.osgi.annotations,

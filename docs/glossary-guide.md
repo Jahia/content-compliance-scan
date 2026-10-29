@@ -20,6 +20,15 @@ one language against every glossary of that language.
 You can have several glossaries for the same language (one from Legal, one from Brand): a scan
 applies them all and says which ones it applied.
 
+## Several glossaries for one language
+
+- Every glossary of the language applies; the reports list them under **Glossaries applied**.
+- When more than one applies, every issue names its glossary (the page scan, the dashboard and the
+  CSV export, which also has a `glossary` column).
+- The same term in two glossaries is reported once **per glossary**, each with its own reason and
+  suggested wording: Legal and Brand both see their rule. The counts then include both.
+- Within one glossary, two entries that find the same text are reported once.
+
 ## Add terms
 
 Open the glossary and use **New Non-authorised term**. One entry per word or phrase:
@@ -57,5 +66,10 @@ The terms list in jContent shows each entry by its term.
 - **Editors must be able to read the glossaries.** A scan reads everything with the rights of the
   person who runs it: a glossary someone cannot read does not apply to their scans. Keep glossaries in
   a folder every editor can read.
+- **The Language list shows the languages active on the live site.** A language being prepared,
+  not yet active in live, cannot be chosen yet.
+- **Keep glossaries in the content folders.** The type is also offered when adding content to a
+  page in Page Builder (content folders accept only droppable types); a glossary placed on a page
+  is never read by the scans.
 - **A language with no glossary is "Not checked"**, never "Compliant": the reports say that nothing
   was checked and how to fix it.
