@@ -68,6 +68,53 @@
             "reason": "Motif",
             "alternative": "Écrire plutôt",
             "listLabel": "Termes non autorisés trouvés, par contenu"
+        },
+        "dashboard": {
+            "navLabel": "Conformité",
+            "title": "Conformité du site",
+            "running": "Analyse de chaque page et de chaque contenu du site...",
+            "exportCsv": "Exporter en CSV",
+            "exportJson": "Exporter en JSON",
+            "openPage": "Ouvrir dans Page Builder",
+            "openPageLabel": "Ouvrir {{name}} dans Page Builder",
+            "error": "Le site n'a pas pu être analysé. Vérifiez que vous pouvez ouvrir ce site dans jContent, puis relancez le contrôle.",
+            "truncated": "Le site contient plus de contenus ou d'occurrences qu'un contrôle n'en lit : le rapport couvre la première partie du site.",
+            "summary": {
+                "safe": "Aucun terme non autorisé dans les pages et contenus lus ({{language}}).",
+                "read": "{{pages}} pages et {{contents}} contenus lus.",
+                "issues": "{{count}} occurrence d'un terme non autorisé, dans {{locations}} page(s) ou contenu(s) ({{language}}).",
+                "issues_plural": "{{count}} occurrences de termes non autorisés, dans {{locations}} page(s) ou contenu(s) ({{language}}).",
+                "issues_one": "{{count}} occurrence d'un terme non autorisé, dans {{locations}} page(s) ou contenu(s) ({{language}}).",
+                "issues_other": "{{count}} occurrences de termes non autorisés, dans {{locations}} page(s) ou contenu(s) ({{language}})."
+            },
+            "terms": {
+                "title": "Termes trouvés",
+                "term": "Terme",
+                "reason": "Motif",
+                "uses": "Occurrences",
+                "locations": "Pages et contenus",
+                "empty": "Aucun terme trouvé."
+            },
+            "locations": {
+                "title": "Pages et contenus concernés",
+                "place": "Page ou contenu",
+                "type": "Type",
+                "issues": "Occurrences",
+                "actions": "Actions",
+                "empty": "Aucune page ni aucun contenu n'emploie de terme non autorisé.",
+                "count": "{{count}} occurrence",
+                "count_plural": "{{count}} occurrences",
+                "count_one": "{{count}} occurrence",
+                "count_other": "{{count}} occurrences"
+            },
+            "kind": {
+                "page": "Page",
+                "content": "Contenu"
+            },
+            "pagination": {
+                "perPage": "Lignes par page",
+                "of": "sur"
+            }
         }
     }
 }

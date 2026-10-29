@@ -15,6 +15,23 @@ not block publication.
    (no glossary for this language).
 3. **Edit** opens the content in Content Editor. When the editor closes, the scan runs again.
 
+## Site dashboard
+
+In jContent, **Additional > Compliance** scans the whole site in the language selected in jContent:
+
+- a summary (compliant or not, uses, pages and content items read, glossaries applied);
+- **Terms found**: each term with its reason and suggested wording, how often it is used and on how many
+  pages and content items;
+- **Pages and content items with issues**: one row per page or content item of the content folders
+  (articles, news), expanded into its issues (field, highlighted sentence, term, reason). Pages open
+  in Page Builder, content items and issues open in Content Editor;
+- **Export CSV** (one row per issue, opens in Excel with accents) and **Export JSON** (the whole report).
+
+Each node counts once: a page owns the content stored under it, so the header and footer count for the
+home page, and content references count where their target is stored. The dashboard needs
+`jContentAccess` on the site, and the module enabled on it; both are checked by the server. A site scan
+stops after 20,000 contents or 5,000 issues and says so.
+
 ## How Legal maintains the glossaries
 
 In jContent, under **Content Folders**, create a **Compliance glossary** (category *Compliance*) in
@@ -71,6 +88,18 @@ query {
       glossaries { path title termCount }
       issues { nodePath nodeUuid nodeName nodeType propertyLabel term matchedText before after
                reason alternative origin originPath }
+    }
+  }
+}
+```
+
+```graphql
+query {
+  complianceScan {
+    scanSite(siteKey: "mySite", language: "en", uiLanguage: "en") {
+      status scannedPages scannedContents truncated
+      terms { term reason alternative uses locations }
+      locations { path name kind typeLabel issueCount issues { nodePath propertyLabel term before matchedText after } }
     }
   }
 }

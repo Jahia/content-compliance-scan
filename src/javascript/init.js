@@ -1,6 +1,8 @@
+import React from 'react';
 import i18next from 'i18next';
 import {registry} from '@jahia/ui-extender';
 import {ComplianceScanAction} from './ComplianceScan/ComplianceScanAction';
+import {ComplianceDashboardRoute} from './ComplianceDashboard/ComplianceDashboard';
 import {NS} from './constants';
 import en from '../main/resources/javascript/locales/en.json';
 import fr from '../main/resources/javascript/locales/fr.json';
@@ -27,6 +29,18 @@ function register() {
         buttonIcon,
         buttonLabel: `${NS}:action.open`,
         component: ComplianceScanAction
+    });
+
+    // Whole-site report, in jContent's Apps accordion. jContent hides the app on sites without the
+    // module and without jContentAccess; the server checks both again.
+    registry.add('adminRoute', 'contentComplianceDashboard', {
+        targets: ['jcontent:90'],
+        label: `${NS}:dashboard.navLabel`,
+        icon: buttonIcon,
+        isSelectable: true,
+        requiredPermission: 'jContentAccess',
+        requireModuleInstalledOnSite: NS,
+        render: () => <ComplianceDashboardRoute/>
     });
 }
 

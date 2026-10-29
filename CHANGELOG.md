@@ -10,5 +10,8 @@
   `ccs:glossaryTerm` (term, match mode, reason, suggested wording), EN and FR labels.
 - Scope: the page and its content, content references, the header and footer of the ancestor pages,
   and the content the Page Builder frame shows from elsewhere.
+- Site dashboard in jContent (Additional > Compliance): the whole site in the selected language, terms
+  ranked by use, pages and content items with their issues, Export CSV and Export JSON. GraphQL
+  `complianceScan.scanSite`, gated by `jContentAccess` and the module being enabled on the site.
 - GraphQL `complianceScan.scanPage` and the exported `ComplianceScanService` for a future
   publication guard.

@@ -27,6 +27,9 @@ keeps what is specific to this module.
   (`GqlComplianceScan.REQUIRED_PERMISSION`), and a site that does not enable the module.
 - Everything is read with the caller's own session (default workspace, content locale). No system
   session, glossaries included: a glossary the editor cannot read does not apply to them.
+- `complianceScan.scanSite` refuses guests, a site key outside `[A-Za-z0-9_-]`, a site without
+  `jContentAccess` for the caller (`GqlComplianceScan.SITE_PERMISSION`) and a site that does not
+  enable the module. It reads with the caller's session too.
 - `renderedPaths` comes from the browser: only paths inside the page's site, outside the page's own
   tree and not an ancestor of the page are read, at most 2,000, through the caller's session.
 - Report text is plain text; the dialog renders it as React text (no `innerHTML`).
@@ -42,6 +45,15 @@ keeps what is specific to this module.
   reported too.
 - **Frame paths**: `[jahiatype="module"][path]` of the active Page Builder frame (listings,
   editable chrome on home). Collected only when the frame's `mainmodule` is the scanned page.
+
+## Site dashboard
+
+- jContent app `contentComplianceDashboard` (target `jcontent:90`, shown under Additional), remounted
+  per site and language. Exports are built in the browser (`ComplianceDashboard/exportReport.js`), per
+  the AIStartupKit rule that every global dashboard exports CSV and JSON.
+- `scanSite` counts each node once: every `jnt:page` with its own tree, then every non-folder child of
+  the `contents` folders with its tree; no reference following, no ancestor chrome. Locations are
+  pages first, in path order; terms most used first.
 
 ## Verify
 

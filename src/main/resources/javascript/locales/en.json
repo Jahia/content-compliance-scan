@@ -68,6 +68,53 @@
             "reason": "Reason",
             "alternative": "Write instead",
             "listLabel": "Non-authorised terms found, by content"
+        },
+        "dashboard": {
+            "navLabel": "Compliance",
+            "title": "Site compliance",
+            "running": "Scanning every page and content item of the site...",
+            "exportCsv": "Export CSV",
+            "exportJson": "Export JSON",
+            "openPage": "Open in Page Builder",
+            "openPageLabel": "Open {{name}} in Page Builder",
+            "error": "The site could not be scanned. Check that you can open this site in jContent, then scan again.",
+            "truncated": "The site holds more content or issues than one scan reads: the report covers the first part of the site.",
+            "summary": {
+                "safe": "No non-authorised term on the pages and content items read ({{language}}).",
+                "read": "{{pages}} pages and {{contents}} contents read.",
+                "issues": "{{count}} use of a non-authorised term, in {{locations}} page(s) or content item(s) ({{language}}).",
+                "issues_plural": "{{count}} uses of non-authorised terms, in {{locations}} page(s) or content item(s) ({{language}}).",
+                "issues_one": "{{count}} use of a non-authorised term, in {{locations}} page(s) or content item(s) ({{language}}).",
+                "issues_other": "{{count}} uses of non-authorised terms, in {{locations}} page(s) or content item(s) ({{language}})."
+            },
+            "terms": {
+                "title": "Terms found",
+                "term": "Term",
+                "reason": "Reason",
+                "uses": "Uses",
+                "locations": "Pages and items",
+                "empty": "No term found."
+            },
+            "locations": {
+                "title": "Pages and content items with issues",
+                "place": "Page or content item",
+                "type": "Type",
+                "issues": "Issues",
+                "actions": "Actions",
+                "empty": "No page or content item uses a non-authorised term.",
+                "count": "{{count}} issue",
+                "count_plural": "{{count}} issues",
+                "count_one": "{{count}} issue",
+                "count_other": "{{count}} issues"
+            },
+            "kind": {
+                "page": "Page",
+                "content": "Content item"
+            },
+            "pagination": {
+                "perPage": "Rows per page",
+                "of": "of"
+            }
         }
     }
 }
