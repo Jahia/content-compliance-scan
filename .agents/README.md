@@ -17,6 +17,10 @@ keeps what is specific to this module. User and developer documentation is in `.
 - Every UI string in `src/main/resources/javascript/locales/{en,fr}.json` (same keys in both; plural
   keys as `key`/`key_plural` and `key_one`/`key_other`). Every CND label and tooltip in
   `src/main/resources/resources/content-compliance-scan{,_fr}.properties`.
+- Every node type and category mixin has an `icons.json` entry and a PNG in
+  `src/main/resources/icons/`, rendered with AIStartupKit's `.agents/tools/content-type-icons`
+  (rule 32). A same-version jar redeploy is skipped by Jahia: use `forceUpdate` when testing a rebuilt
+  release version.
 - `ccs:glossary` and `ccs:glossaryTerm` are released types once 1.0.0 ships: a change goes through
   `/jahia-dev-change-cnd`. `matchMode` values (`word`, `prefix`, `anywhere`) are read by
   `MatchMode.fromValue`: keep them in sync.
@@ -34,6 +38,9 @@ keeps what is specific to this module. User and developer documentation is in `.
 - `renderedPaths` comes from the browser: only paths inside the page's site, outside the page's own
   tree and not an ancestor of the page are read, at most 2,000, through the caller's session.
 - Report text is plain text; the dialog renders it as React text (no `innerHTML`).
+- Cost: `PlainText.fromHtml` is a single forward pass (no regex per tag: 23 s on hostile input
+  before), one request runs at most 5 `scanPage` and 1 `scanSite` (`GqlComplianceScan.countScan`), and
+  the walks stop at the node and issue caps. Keep these when changing the scan.
 
 ## Scope of a scan, and why
 
@@ -78,5 +85,8 @@ keeps what is specific to this module. User and developer documentation is in `.
   workflow can refuse a publication (listeners run after it, validators are skipped during it), and
   the GraphQL `publish` mutation skips workflows for holders of `publish`. Design and sources:
   `docs/publication-blocking.md`.
-- Cypress suite: happy path, guest refused, site without the module, no glossary.
+- Cypress suite: happy path, guest refused, editor without `jcr:write`, site without the module,
+  no glossary (both 1.0.0 reviews asked for it).
+- Glossary languages: a choice-list initializer over all site languages, not only the live-active
+  ones (`siteLanguage`); hide the glossary type from Page Builder's palette.
 - Image `alt` texts inside rich text, and image node titles, are not read.

@@ -24,7 +24,8 @@ Issues are grouped by content. For each content:
 - its name, type and path, and **Edit**, which opens it in Content Editor. When you close the editor,
   the scan runs again;
 - each use: the field ("Text", "Title"), the sentence with the term highlighted, the term, the
-  reason and the suggested wording.
+  reason and the suggested wording, and the glossary when several apply. A term two glossaries
+  share is listed once for each, with each glossary's reason.
 
 A content can carry a second label:
 
