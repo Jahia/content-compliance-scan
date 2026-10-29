@@ -9,6 +9,15 @@
     isolation: isolate;
 }
 
+/* The app sits in jContent's flex column: a plain block grows to its content's height, LayoutContent's
+   scroll box is then never bounded and the report cannot scroll. Fill the column instead. */
+.root {
+    display: flex;
+    flex: 1 1 0%;
+    flex-direction: column;
+    min-height: 0;
+}
+
 .content {
     display: flex;
     flex-direction: column;
