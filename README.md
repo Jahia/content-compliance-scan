@@ -28,7 +28,10 @@ not blocked ([why, and how it could be](docs/publication-blocking.md)).
 
 ## Quick start
 
-1. Deploy the module and enable it on the site (Site Settings > Modules).
+1. Install the jar of the [latest release](https://github.com/Jahia/content-compliance-scan/releases/latest):
+   *Administration > Server > Modules and Extensions > Modules*, *Installed modules*, *Upload module
+   from file*. Then click *Content Compliance Scan* in the list and, under *Usage in sites*, switch the
+   site to *Enabled*.
 2. In jContent, **Content Folders**: under the site's `contents`, create a **Compliance glossary**
    (category *Compliance*), pick its language, then add **Non-authorised terms** (term, match,
    reason, suggested wording).

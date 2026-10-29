@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1 (unreleased)
+
+- README: the install steps name the module manager's screens (upload, then Usage in sites).
+
 ## 1.0.0 (2026-10-29)
 
 ### Added
