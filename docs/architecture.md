@@ -60,9 +60,15 @@ included. Each term becomes one regular expression (quoted, Unicode classes):
 
 | `matchMode` | Pattern around the term |
 |---|---|
-| `word` | no letter or digit before, none after |
-| `prefix` | no letter or digit before, any letters or digits after |
+| `word` | no word character before, none after |
+| `prefix` | no word character before, any word characters after |
 | `anywhere` | nothing around |
+
+A word character is a letter or digit of a script that separates words with spaces: Han, Hiragana,
+Katakana, Thai, Lao, Khmer and Myanmar letters are not, so a whole-word term matches inside a
+Japanese or Chinese sentence and a prefix stops at the end of the term there. Folding leaves Han and
+kana as written (removing combining marks would turn ガ into カ) and turns fullwidth ASCII into plain
+ASCII.
 
 White space inside a term matches any run of white space. Two entries of the same glossary with the
 same folded term at the same place are reported once; entries of different glossaries are each

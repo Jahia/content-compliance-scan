@@ -87,6 +87,37 @@ class TermMatcherTest {
     }
 
     @Test
+    void wholeWordMatchesInsideJapaneseAndChineseSentences() {
+        assertThat(found("耐久性のある端子と安全なロック機能を備えており", term("安全", MatchMode.WORD)))
+                .containsExactly("安全");
+        assertThat(found("为领先的医疗保健和生命科学企业提供支持", term("领先", MatchMode.WORD)))
+                .containsExactly("领先");
+        assertThat(found("モレックスでは、業界をリードするブランド群", term("業界をリード", MatchMode.WORD)))
+                .containsExactly("業界をリード");
+    }
+
+    @Test
+    void prefixStopsAtTheEndOfTheTermInScriptsWithoutSpaces() {
+        assertThat(found("製品保証を維持するため", term("保証", MatchMode.PREFIX))).containsExactly("保証");
+    }
+
+    @Test
+    void latinWordsNextToCjkTextKeepTheirBoundaries() {
+        assertThat(found("当社のbestsellerとbest製品", term("best", MatchMode.WORD))).containsExactly("best");
+    }
+
+    @Test
+    void kanaKeepTheirVoicedMarks() {
+        assertThat(found("ガイドを読む", term("カイト", MatchMode.WORD))).isEmpty();
+        assertThat(found("ガイドを読む", term("ガイド", MatchMode.WORD))).containsExactly("ガイド");
+    }
+
+    @Test
+    void fullwidthLatinIsFolded() {
+        assertThat(found("送料ＦＲＥＥ！", term("free", MatchMode.WORD))).containsExactly("ＦＲＥＥ");
+    }
+
+    @Test
     void blankTermsAreIgnored() {
         TermMatcher matcher = new TermMatcher(List.of(term("  ", MatchMode.WORD)));
         assertThat(matcher.isEmpty()).isTrue();

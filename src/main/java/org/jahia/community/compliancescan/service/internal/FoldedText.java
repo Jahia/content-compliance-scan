@@ -5,7 +5,7 @@ import java.util.Arrays;
 
 /**
  * A text folded for comparison - lower case, accents removed, typographic apostrophes and common
- * ligatures replaced - that keeps, for every folded character, the range it came from in the
+ * ligatures replaced, fullwidth Latin letters and digits made plain - that keeps, for every folded character, the range it came from in the
  * original text. A match found in the folded text is reported on the original text.
  */
 final class FoldedText {
@@ -99,6 +99,16 @@ final class FoldedText {
                 return "ss";
             }
             default -> {
+                Character.UnicodeScript script = Character.UnicodeScript.of(cp);
+                if (script == Character.UnicodeScript.HIRAGANA || script == Character.UnicodeScript.KATAKANA
+                        || script == Character.UnicodeScript.HAN) {
+                    // Voiced marks are letters of their own in kana: ガ is not カ. Keep CJK as written.
+                    return new String(Character.toChars(cp));
+                }
+                if (cp >= 0xFF01 && cp <= 0xFF5E) {
+                    // Fullwidth ASCII (ＦＲＥＥ, ２０２６) as written in Japanese and Chinese text.
+                    return fold(cp - 0xFEE0);
+                }
                 String decomposed = Normalizer.normalize(new String(Character.toChars(cp)), Normalizer.Form.NFD);
                 StringBuilder sb = new StringBuilder(decomposed.length());
                 decomposed.codePoints()

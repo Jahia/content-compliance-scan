@@ -26,9 +26,14 @@ public final class TermMatcher {
     }
 
     private static final Pattern WHITESPACE = Pattern.compile("\\s+", Pattern.UNICODE_CHARACTER_CLASS);
-    private static final String NOT_AFTER_WORD = "(?<![\\p{L}\\p{N}])";
-    private static final String NOT_BEFORE_WORD = "(?![\\p{L}\\p{N}])";
-    private static final String WORD_REST = "[\\p{L}\\p{N}]*";
+    // A word character is a letter or digit of a script that separates words with spaces. Chinese,
+    // Japanese, Thai, Lao, Khmer and Myanmar write words without spaces: their letters never make a
+    // term part of a longer word, otherwise a whole-word term never matches inside a sentence there.
+    private static final String WORD_CHAR = "[\\p{L}\\p{N}&&[^\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}"
+            + "\\p{IsThai}\\p{IsLao}\\p{IsKhmer}\\p{IsMyanmar}]]";
+    private static final String NOT_AFTER_WORD = "(?<!" + WORD_CHAR + ")";
+    private static final String NOT_BEFORE_WORD = "(?!" + WORD_CHAR + ")";
+    private static final String WORD_REST = WORD_CHAR + "*";
 
     private final List<Compiled> compiled;
 

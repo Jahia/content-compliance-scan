@@ -56,6 +56,10 @@ The terms list in jContent shows each entry by its term.
 | Word starting with | `guarant` | "guarantee", "guaranteed" | "unguaranteed" |
 | Anywhere, inside words too | `free` | "free", "carefree" | |
 
+- **Japanese, Chinese, Thai, Lao, Khmer and Burmese** write words without spaces: there, a term is
+  found wherever it is written (安全 in 安全なロック機能), and *Word starting with* matches the term
+  itself. Kana keep their voiced marks (ガイド is not カイト), and fullwidth Latin letters count as
+  plain ones (ＦＲＥＥ is "free").
 - Rich text is read as the visitor reads it: formatting inside a word does not hide it
   (`<b>gra</b>tuit` is "gratuit"), and HTML tags or attributes never match.
 
