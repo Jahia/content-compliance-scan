@@ -8,10 +8,11 @@
 // jmix:droppableContent, which is how a glossary gets created under /sites/<site>/contents.
 [ccsmix:complianceContent] > jmix:droppableContent mixin
 
-// A list of terms that may not be used in the content of one language of the site. The scan reads
+// A list of terms that may not be used in the content of one language of the site. The language list
+// (SiteLanguagesInitializer) offers every site language, live-active or not. The scan reads
 // every glossary under /sites/<site>/contents whose language is the language being scanned.
 [ccs:glossary] > jnt:content, mix:title, jmix:list, ccsmix:complianceContent orderable
- - language (string, choicelist[siteLanguage]) mandatory nofulltext
+ - language (string, choicelist[complianceSiteLanguages]) mandatory nofulltext
  - description (string, textarea)
  + * (ccs:glossaryTerm)
 

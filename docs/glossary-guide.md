@@ -14,7 +14,7 @@ one language against every glossary of that language.
 | Field | What to enter |
 |---|---|
 | Title | The name editors see in the reports ("Legal - claims and wording (EN)") |
-| Language | The site language the glossary applies to. The list shows the languages of the site |
+| Language | The site language the glossary applies to. The list shows every language of the site, live or not |
 | Description | Who maintains it and what it covers. Never shown to visitors |
 
 You can have several glossaries for the same language (one from Legal, one from Brand): a scan
@@ -56,6 +56,10 @@ The terms list in jContent shows each entry by its term.
 | Word starting with | `guarant` | "guarantee", "guaranteed" | "unguaranteed" |
 | Anywhere, inside words too | `free` | "free", "carefree" | |
 
+- **Japanese, Chinese, Thai, Lao, Khmer and Burmese** write words without spaces: there, a term is
+  found wherever it is written (安全 in 安全なロック機能), and *Word starting with* matches the term
+  itself. Kana keep their voiced marks (ガイド is not カイト), and fullwidth Latin letters count as
+  plain ones (ＦＲＥＥ is "free").
 - Rich text is read as the visitor reads it: formatting inside a word does not hide it
   (`<b>gra</b>tuit` is "gratuit"), and HTML tags or attributes never match.
 
@@ -66,8 +70,8 @@ The terms list in jContent shows each entry by its term.
 - **Editors must be able to read the glossaries.** A scan reads everything with the rights of the
   person who runs it: a glossary someone cannot read does not apply to their scans. Keep glossaries in
   a folder every editor can read.
-- **The Language list shows the languages active on the live site.** A language being prepared,
-  not yet active in live, cannot be chosen yet.
+- **The Language list shows every language of the site**, also one not yet active on the live
+  site: check a language's content before it goes live.
 - **Keep glossaries in the content folders.** The type is also offered when adding content to a
   page in Page Builder (content folders accept only droppable types); a glossary placed on a page
   is never read by the scans.

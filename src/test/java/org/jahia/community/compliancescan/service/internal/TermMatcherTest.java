@@ -87,6 +87,57 @@ class TermMatcherTest {
     }
 
     @Test
+    void wholeWordMatchesInsideJapaneseAndChineseSentences() {
+        assertThat(found("耐久性のある端子と安全なロック機能を備えており", term("安全", MatchMode.WORD)))
+                .containsExactly("安全");
+        assertThat(found("为领先的医疗保健和生命科学企业提供支持", term("领先", MatchMode.WORD)))
+                .containsExactly("领先");
+        assertThat(found("モレックスでは、業界をリードするブランド群", term("業界をリード", MatchMode.WORD)))
+                .containsExactly("業界をリード");
+    }
+
+    @Test
+    void prefixStopsAtTheEndOfTheTermInScriptsWithoutSpaces() {
+        assertThat(found("製品保証を維持するため", term("保証", MatchMode.PREFIX))).containsExactly("保証");
+    }
+
+    @Test
+    void latinWordsNextToCjkTextKeepTheirBoundaries() {
+        assertThat(found("当社のbestsellerとbest製品", term("best", MatchMode.WORD))).containsExactly("best");
+    }
+
+    @Test
+    void kanaKeepTheirVoicedMarks() {
+        assertThat(found("ガイドを読む", term("カイト", MatchMode.WORD))).isEmpty();
+        assertThat(found("ガイドを読む", term("ガイド", MatchMode.WORD))).containsExactly("ガイド");
+    }
+
+    @Test
+    void boundariesApplyOnlyWhereTheTermHasAWordCharacter() {
+        assertThat(found("ユーザー情報を保護します", term("情報", MatchMode.WORD))).containsExactly("情報");
+        assertThat(found("ユーザー情報を保護します", term("情報", MatchMode.PREFIX))).containsExactly("情報");
+        assertThat(found("Jahia安全", term("安全", MatchMode.WORD))).containsExactly("安全");
+        assertThat(found("ユーザー情報とユーザーID", term("ユーザー", MatchMode.WORD))).containsExactly("ユーザー");
+    }
+
+    @Test
+    void decomposedKanaMatchTheirComposedForm() {
+        String decomposed = "\u30AB\u3099\u30A4\u30C8\u3099を読む";   // ガイド written as カ+゛ イ ト+゛
+        assertThat(found(decomposed, term("ガイド", MatchMode.WORD))).containsExactly("\u30AB\u3099\u30A4\u30C8\u3099");
+        assertThat(found(decomposed, term("カイト", MatchMode.WORD))).isEmpty();
+    }
+
+    @Test
+    void compatibilityIdeographsMatchTheirStandardForm() {
+        assertThat(found("\uF900", term("\u8C48", MatchMode.WORD))).containsExactly("\uF900");
+    }
+
+    @Test
+    void fullwidthLatinIsFolded() {
+        assertThat(found("送料ＦＲＥＥ！", term("free", MatchMode.WORD))).containsExactly("ＦＲＥＥ");
+    }
+
+    @Test
     void blankTermsAreIgnored() {
         TermMatcher matcher = new TermMatcher(List.of(term("  ", MatchMode.WORD)));
         assertThat(matcher.isEmpty()).isTrue();

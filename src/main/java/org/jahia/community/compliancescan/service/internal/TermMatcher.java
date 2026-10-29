@@ -26,9 +26,15 @@ public final class TermMatcher {
     }
 
     private static final Pattern WHITESPACE = Pattern.compile("\\s+", Pattern.UNICODE_CHARACTER_CLASS);
-    private static final String NOT_AFTER_WORD = "(?<![\\p{L}\\p{N}])";
-    private static final String NOT_BEFORE_WORD = "(?![\\p{L}\\p{N}])";
-    private static final String WORD_REST = "[\\p{L}\\p{N}]*";
+    // A word character is a letter or digit of a script that separates words with spaces. Chinese,
+    // Japanese, Thai, Lao, Khmer and Myanmar write words without spaces: their letters never make a
+    // term part of a longer word, otherwise a whole-word term never matches inside a sentence there.
+    private static final String WORD_CHAR = "[\\p{L}\\p{N}&&[^\\p{IsHan}\\p{IsHiragana}\\p{IsKatakana}"
+            + "\\p{IsThai}\\p{IsLao}\\p{IsKhmer}\\p{IsMyanmar}]]";
+    private static final String NOT_AFTER_WORD = "(?<!" + WORD_CHAR + ")";
+    private static final String NOT_BEFORE_WORD = "(?!" + WORD_CHAR + ")";
+    private static final String WORD_REST = WORD_CHAR + "*";
+    private static final Pattern IS_WORD_CHAR = Pattern.compile(WORD_CHAR, Pattern.UNICODE_CHARACTER_CLASS);
 
     private final List<Compiled> compiled;
 
@@ -97,11 +103,19 @@ public final class TermMatcher {
         String body = WHITESPACE.splitAsStream(foldedTerm)
                 .map(Pattern::quote)
                 .collect(Collectors.joining("\\s+"));
+        // A boundary is checked only on a side where the term itself has a word character, as \\b does:
+        // 安全 is found in "Jahia安全", 情報 in "ユーザー情報" (ー is a letter of the Common script).
+        boolean wordStart = isWordChar(foldedTerm.codePointAt(0));
+        boolean wordEnd = isWordChar(foldedTerm.codePointBefore(foldedTerm.length()));
         String regex = switch (mode) {
-            case WORD -> NOT_AFTER_WORD + body + NOT_BEFORE_WORD;
-            case PREFIX -> NOT_AFTER_WORD + body + WORD_REST;
+            case WORD -> (wordStart ? NOT_AFTER_WORD : "") + body + (wordEnd ? NOT_BEFORE_WORD : "");
+            case PREFIX -> (wordStart ? NOT_AFTER_WORD : "") + body + (wordEnd ? WORD_REST : "");
             case ANYWHERE -> body;
         };
         return Pattern.compile(regex, Pattern.UNICODE_CHARACTER_CLASS);
+    }
+
+    private static boolean isWordChar(int codePoint) {
+        return IS_WORD_CHAR.matcher(new String(Character.toChars(codePoint))).matches();
     }
 }

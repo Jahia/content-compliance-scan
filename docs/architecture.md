@@ -17,6 +17,7 @@ jContent dashboard  ──► complianceScan.scanSite ─┘          │
 |---|---|
 | `model` (exported) | Records of the reports: `ComplianceReport`, `SiteComplianceReport`, `ComplianceIssue`, `LocationReport`, `TermUsage`, `Glossary`, `GlossaryTerm`, enums |
 | `service.spi` (exported) | `ComplianceScanService`: `scan(page, uiLocale, renderedPaths)` and `scanSite(site, uiLocale)` |
+| `choicelist` | `SiteLanguagesInitializer`: `choicelist[complianceSiteLanguages]`, every language of the site (Jahia's `siteLanguage` offers the live-active ones only) |
 | `service.internal` | `ComplianceScanServiceImpl` (tree walk), `GlossaryReader`, `TermMatcher` and `FoldedText` (matching), `PlainText` (rich text to text), `Excerpt` |
 | `graphql` | `complianceScan { scanPage, scanSite }` and the `Gql*` views; schema names are prefixed (`ComplianceIssue`, `ComplianceScanStatus`...) |
 
@@ -60,9 +61,17 @@ included. Each term becomes one regular expression (quoted, Unicode classes):
 
 | `matchMode` | Pattern around the term |
 |---|---|
-| `word` | no letter or digit before, none after |
-| `prefix` | no letter or digit before, any letters or digits after |
+| `word` | no word character before, none after |
+| `prefix` | no word character before, any word characters after |
 | `anywhere` | nothing around |
+
+A word character is a letter or digit of a script that separates words with spaces: Han, Hiragana,
+Katakana, Thai, Lao, Khmer and Myanmar letters are not, so a whole-word term matches inside a
+Japanese or Chinese sentence and a prefix stops at the end of the term there. As with `\b`, the
+check before (after) the term applies only when the term's first (last) character is a word
+character: 情報 is found in ユーザー情報, where ー is a Common-script letter. Folding leaves kana and
+Han as written but composed (removing combining marks would turn ガ into カ; カ + U+3099 is composed
+into ガ, U+F900 into U+8C48) and turns fullwidth ASCII into plain ASCII.
 
 White space inside a term matches any run of white space. Two entries of the same glossary with the
 same folded term at the same place are reported once; entries of different glossaries are each
@@ -133,7 +142,9 @@ read (a `RepositoryException`: a type definition gone, a provider down) is skipp
 - A page scan can list an ancestor's area that the page's template does not display (an area name
   used only on the home page template).
 - The site scan does not follow content references to other sites.
-- The glossary language list (`choicelist[siteLanguage]`) offers the languages active in live only.
+- Matching edge cases not handled: halfwidth katakana (ｶﾞｲﾄﾞ is not ガイド), Thai tone marks
+  (stripped with other combining marks, so ไม่ also finds ไม), Greek final ς (not folded to σ), and a
+  supplementary-plane letter right before a term is not seen by the boundary check.
 - The glossary type shows in Page Builder's add-content menu (content folders accept only
   `jmix:droppableContent`); a glossary on a page is never read.
 - A translator with `jcr:modifyProperties_<lang>` but no `jcr:write` on the page cannot run the page

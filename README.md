@@ -9,7 +9,7 @@ maintained by Legal in jContent. Two entry points:
 - **Additional > Compliance** in jContent: the whole site in one language, terms ranked by use,
   pages and content items with their issues, **Export CSV** and **Export JSON**.
 
-Latest release: [1.0.0](https://github.com/Jahia/content-compliance-scan/releases/tag/content-compliance-scan-1.0.0)
+Latest release: [1.0.1](https://github.com/Jahia/content-compliance-scan/releases/tag/content-compliance-scan-1.0.1)
 ([changelog](CHANGELOG.md)).
 
 This version is informational: a page with issues is flagged "do not publish yet", publication is
