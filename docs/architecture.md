@@ -17,6 +17,7 @@ jContent dashboard  ──► complianceScan.scanSite ─┘          │
 |---|---|
 | `model` (exported) | Records of the reports: `ComplianceReport`, `SiteComplianceReport`, `ComplianceIssue`, `LocationReport`, `TermUsage`, `Glossary`, `GlossaryTerm`, enums |
 | `service.spi` (exported) | `ComplianceScanService`: `scan(page, uiLocale, renderedPaths)` and `scanSite(site, uiLocale)` |
+| `choicelist` | `SiteLanguagesInitializer`: `choicelist[complianceSiteLanguages]`, every language of the site (Jahia's `siteLanguage` offers the live-active ones only) |
 | `service.internal` | `ComplianceScanServiceImpl` (tree walk), `GlossaryReader`, `TermMatcher` and `FoldedText` (matching), `PlainText` (rich text to text), `Excerpt` |
 | `graphql` | `complianceScan { scanPage, scanSite }` and the `Gql*` views; schema names are prefixed (`ComplianceIssue`, `ComplianceScanStatus`...) |
 
@@ -139,7 +140,6 @@ read (a `RepositoryException`: a type definition gone, a provider down) is skipp
 - A page scan can list an ancestor's area that the page's template does not display (an area name
   used only on the home page template).
 - The site scan does not follow content references to other sites.
-- The glossary language list (`choicelist[siteLanguage]`) offers the languages active in live only.
 - The glossary type shows in Page Builder's add-content menu (content folders accept only
   `jmix:droppableContent`); a glossary on a page is never read.
 - A translator with `jcr:modifyProperties_<lang>` but no `jcr:write` on the page cannot run the page

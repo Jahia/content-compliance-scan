@@ -9,6 +9,9 @@
   Khmer and Myanmar no longer extend a word, so 安全 is found in 安全なロック機能 and a prefix stops at
   the end of the term. Kana keep their voiced marks (ガ is not カ), and fullwidth Latin letters and
   digits match their plain forms.
+- A glossary's *Language* list offers every language of the site, also those not yet active on the
+  live site (Jahia's own site-language list showed the live-active ones only, so a glossary for a
+  language being prepared could not be written or edited).
 
 ### Changed
 

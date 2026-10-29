@@ -21,6 +21,10 @@ keeps what is specific to this module. User and developer documentation is in `.
   `src/main/resources/icons/`, rendered with AIStartupKit's `.agents/tools/content-type-icons`
   (rule 32). A same-version jar redeploy is skipped by Jahia: use `forceUpdate` when testing a rebuilt
   release version.
+- The glossary language list is `choicelist[complianceSiteLanguages]` (`choicelist/SiteLanguagesInitializer`,
+  a DS `ModuleChoiceListInitializer`): every site language, since inactive-live ones are when Legal
+  needs a glossary. Matching treats Han, kana, Thai, Lao, Khmer and Myanmar letters as non-word
+  characters (`TermMatcher.WORD_CHAR`) and keeps kana and Han unfolded (`FoldedText`).
 - `ccs:glossary` and `ccs:glossaryTerm` are released types once 1.0.0 ships: a change goes through
   `/jahia-dev-change-cnd`. `matchMode` values (`word`, `prefix`, `anywhere`) are read by
   `MatchMode.fromValue`: keep them in sync.
@@ -87,6 +91,5 @@ keeps what is specific to this module. User and developer documentation is in `.
   `docs/publication-blocking.md`.
 - Cypress suite: happy path, guest refused, editor without `jcr:write`, site without the module,
   no glossary (both 1.0.0 reviews asked for it).
-- Glossary languages: a choice-list initializer over all site languages, not only the live-active
-  ones (`siteLanguage`); hide the glossary type from Page Builder's palette.
+- Hide the glossary type from Page Builder's palette.
 - Image `alt` texts inside rich text, and image node titles, are not read.
