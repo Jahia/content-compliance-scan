@@ -40,7 +40,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Default {@link ComplianceScanService}: walks the page tree in the caller's session.
+ * Default {@link ComplianceScanService}: walks the page or site tree in the caller's session. Each
+ * call keeps its state in its own {@code Scan}; the component itself holds none.
  */
 @Component(service = ComplianceScanService.class, immediate = true)
 public class ComplianceScanServiceImpl implements ComplianceScanService {

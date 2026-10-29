@@ -10,9 +10,10 @@ import java.util.Collection;
 import java.util.Locale;
 
 /**
- * Scans the content of a page against the glossaries of non-authorised terms of its site.
+ * Scans content against the glossaries of non-authorised terms of its site: one page as Page Builder
+ * shows it ({@link #scan}), or a whole site where its content is stored ({@link #scanSite}).
  *
- * <p>The scan reads, in the language of the page node's session:</p>
+ * <p>The page scan reads, in the language of the page node's session:</p>
  * <ul>
  *     <li>the text properties of the page and of every content stored under it, sub-pages excluded;</li>
  *     <li>the contents that a content reference ({@code jmix:nodeReference}) of the page points to;</li>

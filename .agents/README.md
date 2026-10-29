@@ -3,7 +3,8 @@
 Track 2 OSGi UI extension with a Java service: Maven bundle, React 18, Webpack + Module Federation,
 `@jahia/ui-extender`, plus a GraphQL extension and a CND. Generic Jahia rules live in AIStartupKit
 (`CLAUDE.md`, skills `jahia-osgi-ui-extension`, `jahia-java-security`, `jahia-java-jcr`); this file
-keeps what is specific to this module.
+keeps what is specific to this module. User and developer documentation is in `../docs/`
+(`architecture.md` for scope, matching, API and limits); keep it in step with every change.
 
 ## Invariants
 
@@ -55,17 +56,27 @@ keeps what is specific to this module.
   the `contents` folders with its tree; no reference following, no ancestor chrome. Locations are
   pages first, in path order; terms most used first.
 
+- The app's root `div` wraps `LayoutContent` for `contain: inline-size`; it must stay a flex column
+  that fills the panel (`flex: 1 1 0%; min-height: 0`), or the report cannot scroll (fixed before
+  1.0.0; AIStartupKit rule 30).
+
 ## Verify
 
 - `mvn clean install` runs the unit tests (`TermMatcher`, `PlainText`, `Excerpt`).
 - On a local Jahia: deploy, enable on a site, create a glossary, then
   `complianceScan { scanPage(path, language) { status issues { term nodePath origin } } }` and the
   dialog in Page Builder (`/jahia/jcontent/<site>/<lang>/pages/<path>`).
+- Dashboard: `complianceScan { scanSite(siteKey, language) { status scannedPages locations { path issueCount } } }`
+  and `/jahia/jcontent/<site>/<lang>/apps/contentComplianceDashboard`: full width at 1600 px
+  (`jahia-osgi-ui-extension`, "The page"), `.moonstone-layoutContent` scrolls
+  (`scrollHeight > clientHeight`, then a wheel scroll), exports checked by intercepting
+  `URL.createObjectURL` (row count, BOM bytes), never by downloading.
 
 ## Backlog
 
-- Block publication: a publication validation (workflow step or `jmix:publication` listener) that
-  calls `ComplianceScanService`; the scope there is what the publication sends (page tree), not the
-  chrome.
+- Block publication: parked by the user (2026-10-29) until a customer needs it. Only a publication
+  workflow can refuse a publication (listeners run after it, validators are skipped during it), and
+  the GraphQL `publish` mutation skips workflows for holders of `publish`. Design and sources:
+  `docs/publication-blocking.md`.
 - Cypress suite: happy path, guest refused, site without the module, no glossary.
 - Image `alt` texts inside rich text, and image node titles, are not read.
