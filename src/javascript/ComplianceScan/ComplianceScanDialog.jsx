@@ -57,7 +57,7 @@ const StatusChip = ({status}) => {
 
 StatusChip.propTypes = {status: PropTypes.string.isRequired};
 
-const IssueGroup = ({group, onEdit}) => {
+const IssueGroup = ({group, glossaryTitles, onEdit}) => {
     const {t} = useTranslation(NS);
     return (
         <li className={styles.group}>
@@ -95,6 +95,7 @@ const IssueGroup = ({group, onEdit}) => {
                             <dd>{issue.term}</dd>
                             {issue.reason && <><dt>{t('issue.reason')}</dt><dd>{issue.reason}</dd></>}
                             {issue.alternative && <><dt>{t('issue.alternative')}</dt><dd>{issue.alternative}</dd></>}
+                            {glossaryTitles.size > 1 && <><dt>{t('issue.glossary')}</dt><dd>{glossaryTitles.get(issue.glossaryPath) || issue.glossaryPath}</dd></>}
                         </dl>
                     </li>
                 ))}
@@ -105,6 +106,7 @@ const IssueGroup = ({group, onEdit}) => {
 
 IssueGroup.propTypes = {
     group: PropTypes.object.isRequired,
+    glossaryTitles: PropTypes.instanceOf(Map).isRequired,
     onEdit: PropTypes.func.isRequired
 };
 
@@ -112,6 +114,7 @@ const Report = ({report, framed, uiLanguage, onEdit}) => {
     const {t} = useTranslation(NS);
     const language = languageName(report.language, uiLanguage);
     const groups = useMemo(() => groupByContent(report.issues), [report.issues]);
+    const glossaryTitles = useMemo(() => new Map(report.glossaries.map(g => [g.path, g.title])), [report.glossaries]);
 
     let summary;
     if (report.status === 'SAFE') {
@@ -163,7 +166,7 @@ const Report = ({report, framed, uiLanguage, onEdit}) => {
             )}
             {groups.length > 0 && (
                 <ul className={styles.groups} aria-label={t('issue.listLabel')}>
-                    {groups.map(group => <IssueGroup key={group.nodeUuid} group={group} onEdit={onEdit}/>)}
+                    {groups.map(group => <IssueGroup key={group.nodeUuid} group={group} glossaryTitles={glossaryTitles} onEdit={onEdit}/>)}
                 </ul>
             )}
         </>

@@ -78,6 +78,15 @@ class TermMatcherTest {
     }
 
     @Test
+    void theSameTermInTwoGlossariesIsReportedForEach() {
+        GlossaryTerm legal = new GlossaryTerm("autonomous", MatchMode.PREFIX, "Outcome promise", null, "/t/a", "/g/legal");
+        GlossaryTerm brand = new GlossaryTerm("Autonomous", MatchMode.WORD, "Brand voice", null, "/t/b", "/g/brand");
+        assertThat(new TermMatcher(List.of(legal, brand)).find("fully autonomous teams"))
+                .extracting(m -> m.term().glossaryPath())
+                .containsExactlyInAnyOrder("/g/legal", "/g/brand");
+    }
+
+    @Test
     void blankTermsAreIgnored() {
         TermMatcher matcher = new TermMatcher(List.of(term("  ", MatchMode.WORD)));
         assertThat(matcher.isEmpty()).isTrue();

@@ -23,10 +23,10 @@
             "safe_plural": "No non-authorised term in the {{count}} contents read ({{language}}).",
             "safe_one": "No non-authorised term in the {{count}} content read ({{language}}).",
             "safe_other": "No non-authorised term in the {{count}} contents read ({{language}}).",
-            "issues": "{{count}} use of a non-authorised term, in {{contents}} content ({{language}}).",
-            "issues_plural": "{{count}} uses of non-authorised terms, in {{contents}} contents ({{language}}).",
-            "issues_one": "{{count}} use of a non-authorised term, in {{contents}} content ({{language}}).",
-            "issues_other": "{{count}} uses of non-authorised terms, in {{contents}} contents ({{language}}).",
+            "issues": "{{count}} use of a non-authorised term, in {{contents}} content(s) ({{language}}).",
+            "issues_plural": "{{count}} uses of non-authorised terms, in {{contents}} content(s) ({{language}}).",
+            "issues_one": "{{count}} use of a non-authorised term, in {{contents}} content(s) ({{language}}).",
+            "issues_other": "{{count}} uses of non-authorised terms, in {{contents}} content(s) ({{language}}).",
             "noGlossary": "No glossary applies to {{language}}: nothing was checked."
         },
         "banner": {
@@ -67,7 +67,8 @@
             "term": "Term",
             "reason": "Reason",
             "alternative": "Write instead",
-            "listLabel": "Non-authorised terms found, by content"
+            "listLabel": "Non-authorised terms found, by content",
+            "glossary": "Glossary"
         },
         "dashboard": {
             "navLabel": "Compliance",
@@ -81,7 +82,7 @@
             "truncated": "The site holds more content or issues than one scan reads: the report covers the first part of the site.",
             "summary": {
                 "safe": "No non-authorised term on the pages and content items read ({{language}}).",
-                "read": "{{pages}} pages and {{contents}} contents read.",
+                "read": "Pages read: {{pages}}. Contents read: {{contents}}.",
                 "issues": "{{count}} use of a non-authorised term, in {{locations}} page(s) or content item(s) ({{language}}).",
                 "issues_plural": "{{count}} uses of non-authorised terms, in {{locations}} page(s) or content item(s) ({{language}}).",
                 "issues_one": "{{count}} use of a non-authorised term, in {{locations}} page(s) or content item(s) ({{language}}).",
@@ -114,7 +115,8 @@
             "pagination": {
                 "perPage": "Rows per page",
                 "of": "of"
-            }
+            },
+            "skipped": "{{count}} page(s) or content item(s) could not be read and are not in the report; the Jahia log names them."
         }
     }
 }

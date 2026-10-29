@@ -4,6 +4,7 @@ import graphql.annotations.annotationTypes.GraphQLDescription;
 import graphql.annotations.annotationTypes.GraphQLField;
 import graphql.annotations.annotationTypes.GraphQLName;
 import graphql.annotations.annotationTypes.GraphQLNonNull;
+import graphql.schema.DataFetchingEnvironment;
 import org.jahia.community.compliancescan.service.spi.ComplianceScanService;
 import org.jahia.modules.graphql.provider.dxm.DataFetchingException;
 import org.jahia.modules.graphql.provider.dxm.osgi.annotations.GraphQLOsgiService;
@@ -44,6 +45,9 @@ public class GqlComplianceScan {
     private static final Pattern SITE_KEY = Pattern.compile("^[A-Za-z0-9_-]{1,64}$");
     private static final Pattern LANGUAGE = Pattern.compile("^[A-Za-z]{2,3}([_-][A-Za-z0-9]{2,8}){0,3}$");
     private static final String DENIED = "Permission denied";
+    /** Scans one request may run: a request with many aliases of scanSite would otherwise read the site many times. */
+    static final int MAX_PAGE_SCANS_PER_REQUEST = 5;
+    static final int MAX_SITE_SCANS_PER_REQUEST = 1;
 
     @Inject
     @GraphQLOsgiService
@@ -66,8 +70,10 @@ public class GqlComplianceScan {
             @GraphQLName("path") @GraphQLNonNull @GraphQLDescription("Path of the page") String path,
             @GraphQLName("language") @GraphQLNonNull @GraphQLDescription("Content language to scan") String language,
             @GraphQLName("uiLanguage") @GraphQLDescription("Language of the labels in the report") String uiLanguage,
-            @GraphQLName("renderedPaths") @GraphQLDescription("Paths of the contents the edit frame shows for this page (header, footer, listings)") List<String> renderedPaths) {
+            @GraphQLName("renderedPaths") @GraphQLDescription("Paths of the contents the edit frame shows for this page (header, footer, listings)") List<String> renderedPaths,
+            DataFetchingEnvironment environment) {
         requireAuthenticated();
+        countScan(environment, "scanPage", MAX_PAGE_SCANS_PER_REQUEST);
         Locale contentLocale = contentLocale(language);
         Locale uiLocale = uiLocale(uiLanguage);
         try {
@@ -81,7 +87,7 @@ public class GqlComplianceScan {
         } catch (PathNotFoundException e) {
             throw new DataFetchingException(DENIED);
         } catch (RepositoryException e) {
-            logger.warn("Compliance scan of {} in {} failed: {}", path, language, e.toString());
+            logger.warn("Compliance scan of {} in {} failed: {}", forLog(path), language, e.toString());
             throw new DataFetchingException("The scan could not read the content");
         }
     }
@@ -101,8 +107,10 @@ public class GqlComplianceScan {
     public GqlSiteComplianceReport scanSite(
             @GraphQLName("siteKey") @GraphQLNonNull @GraphQLDescription("Key of the site") String siteKey,
             @GraphQLName("language") @GraphQLNonNull @GraphQLDescription("Content language to scan") String language,
-            @GraphQLName("uiLanguage") @GraphQLDescription("Language of the labels in the report") String uiLanguage) {
+            @GraphQLName("uiLanguage") @GraphQLDescription("Language of the labels in the report") String uiLanguage,
+            DataFetchingEnvironment environment) {
         requireAuthenticated();
+        countScan(environment, "scanSite", MAX_SITE_SCANS_PER_REQUEST);
         if (siteKey == null || !SITE_KEY.matcher(siteKey).matches()) {
             throw new DataFetchingException(DENIED);
         }
@@ -130,8 +138,27 @@ public class GqlComplianceScan {
         }
     }
 
+    /** Refuses a request that runs a scan more often than {@code max} times (aliases). */
+    private static void countScan(DataFetchingEnvironment environment, String field, int max) {
+        if (environment == null || environment.getGraphQlContext() == null) {
+            return;
+        }
+        String key = GqlComplianceScan.class.getName() + "." + field;
+        int count = environment.getGraphQlContext().<Integer>getOrDefault(key, 0) + 1;
+        environment.getGraphQlContext().put(key, count);
+        if (count > max) {
+            throw new DataFetchingException("Too many " + field + " in one request");
+        }
+    }
+
+    /** A path for the log: line breaks removed, so a caller cannot forge log lines. */
+    private static String forLog(String value) {
+        return value == null ? null : value.replaceAll("[\\r\\n]", "_");
+    }
+
+    /** Enabled directly on the site or through a module the site enables, as the button and jContent check it. */
     private static void requireModuleEnabled(JCRSiteNode site) {
-        if (site == null || !site.getInstalledModules().contains(MODULE_ID)) {
+        if (site == null || !site.getInstalledModulesWithAllDependencies().contains(MODULE_ID)) {
             throw new DataFetchingException("The compliance scan is not enabled on this site");
         }
     }

@@ -1,6 +1,6 @@
 const CSV_COLUMNS = [
     'locationKind', 'locationPath', 'locationName', 'contentPath', 'contentName', 'contentType',
-    'field', 'term', 'matchedText', 'excerpt', 'reason', 'alternative', 'glossaryPath'
+    'field', 'term', 'matchedText', 'excerpt', 'reason', 'alternative', 'glossary', 'glossaryPath'
 ];
 
 // A cell starting with one of these is read as a formula by spreadsheet applications.
@@ -30,11 +30,12 @@ const baseName = (report, scannedAt) => `compliance-${report.siteKey}-${report.l
 /** One row per issue, with the location it belongs to. UTF-8 with a BOM so spreadsheets read accents. */
 export const exportCsv = (report, scannedAt) => {
     const lines = [CSV_COLUMNS.join(',')];
+    const titles = new Map(report.glossaries.map(g => [g.path, g.title]));
     report.locations.forEach(location => location.issues.forEach(issue => {
         lines.push([
             location.kind, location.path, location.name, issue.nodePath, issue.nodeName, issue.nodeType,
             issue.propertyLabel || issue.propertyName, issue.term, issue.matchedText,
-            `${issue.before || ''}${issue.matchedText}${issue.after || ''}`, issue.reason, issue.alternative, issue.glossaryPath
+            `${issue.before || ''}${issue.matchedText}${issue.after || ''}`, issue.reason, issue.alternative, titles.get(issue.glossaryPath), issue.glossaryPath
         ].map(csvCell).join(','));
     }));
     download(`﻿${lines.join('\r\n')}\r\n`, 'text/csv;charset=utf-8', `${baseName(report, scannedAt)}.csv`);
