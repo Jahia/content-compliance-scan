@@ -1,5 +1,13 @@
 # Content Compliance Scan
 
+> [!IMPORTANT]
+> **Deprecated: replaced by [Content Governance](https://github.com/Jahia/content-governance).** Content Compliance Scan is now part of Content Governance
+> 1.0.0, which brings its page scan and site compliance report together with the other content checks in one drawer, switched on per
+> site. This repository receives no further releases and will be archived.
+>
+> To move: uninstall Content Compliance Scan, then install Content Governance and enable it on your sites; compliance glossaries carry over as they are.
+> Details: [moving from the three modules](https://github.com/Jahia/content-governance#moving-from-the-three-modules).
+
 Checks site content against glossaries of non-authorised terms, one glossary list per language,
 maintained by Legal in jContent. Two entry points:
 
