@@ -1,6 +1,16 @@
 # Changelog
 
-## 1.0.1 (unreleased)
+## 1.0.1 (2026-10-29)
+
+### Fixed
+
+- Japanese and Chinese: a *Whole word* or *Word starting with* term never matched inside a sentence,
+  since these languages write words without spaces. Letters of Han, Hiragana, Katakana, Thai, Lao,
+  Khmer and Myanmar no longer extend a word, so 安全 is found in 安全なロック機能 and a prefix stops at
+  the end of the term. Kana keep their voiced marks (ガ is not カ), and fullwidth Latin letters and
+  digits match their plain forms.
+
+### Changed
 
 - README: the install steps name the module manager's screens (upload, then Usage in sites).
 
