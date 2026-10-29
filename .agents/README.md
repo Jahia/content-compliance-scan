@@ -1,5 +1,7 @@
 # Content Compliance Scan - agent harness
 
+**Deprecated (2026-10-29):** this module is replaced by Content Governance (https://github.com/Jahia/content-governance). Do not develop here; work goes to content-governance.
+
 Track 2 OSGi UI extension with a Java service: Maven bundle, React 18, Webpack + Module Federation,
 `@jahia/ui-extender`, plus a GraphQL extension and a CND. Generic Jahia rules live in AIStartupKit
 (`CLAUDE.md`, skills `jahia-osgi-ui-extension`, `jahia-java-security`, `jahia-java-jcr`); this file
