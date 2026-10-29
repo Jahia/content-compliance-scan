@@ -8,3 +8,4 @@ src/main/resources/javascript/apps/
 .vscode/
 .claude/worktrees/
 .claude/settings.local.json
+release.properties

@@ -1,0 +1,88 @@
+# Builds the module and runs its unit tests on every pull request and on every push to main. Run by
+# hand on a release tag (`gh workflow run build.yml --ref content-compliance-scan-X.Y.Z`), it builds the
+# jar attached to the GitHub release: a release jar never comes from a laptop build, whose manifest
+# carries the absolute build path. The toolchain comes from mise.toml: JDK 17, Maven 3.8 (3.9 writes a
+# wrong Import-Package while the build stays green). Node and Yarn come from frontend-maven-plugin.
+name: Build
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: jdx/mise-action@v4
+
+      - name: Cache Maven repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ hashFiles('pom.xml') }}
+          restore-keys: maven-
+
+      - name: Cache Yarn
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/yarn
+          key: yarn-${{ hashFiles('yarn.lock') }}
+          restore-keys: yarn-
+
+      - name: Check the toolchain
+        run: |
+          java -version 2>&1 | head -1
+          mvn -v | head -1
+          mvn -v | grep -q "Apache Maven 3\.8\." || { echo "Maven 3.8 expected (see mise.toml)"; exit 1; }
+
+      # webpack, unit tests and the OSGi bundle; no absolute build path in the manifest
+      - name: Build
+        run: mvn -B -ntp clean install
+        env:
+          JAHIA_DISABLE_SOURCE_FOLDERS: "true"
+
+      - name: Check the bundle
+        run: |
+          for f in target/content-compliance-scan-*.jar; do
+            case "$f" in *-sources.jar) ;; *) jar="$f" ;; esac
+          done
+          for entry in javascript/apps/remoteEntry.js javascript/apps/package.json META-INF/definitions.cnd; do
+            unzip -l "$jar" | grep -q "$entry" || { echo "$entry missing from $jar"; exit 1; }
+          done
+          manifest=$(unzip -p "$jar" META-INF/MANIFEST.MF | tr -d '\r' | perl -0pe 's/\n //g')
+          if grep -q "^Jahia-Source-Folders" <<<"$manifest"; then echo "Jahia-Source-Folders in the manifest"; exit 1; fi
+          grep "^Import-Package" <<<"$manifest"
+          pom_version=$(mvn -q -DforceStdout help:evaluate -Dexpression=project.version)
+          app_version=$(unzip -p "$jar" javascript/apps/package.json | python3 -c "import sys,json; print(json.load(sys.stdin)['version'])")
+          echo "pom $pom_version, javascript/apps/package.json $app_version"
+          [ "${pom_version%-SNAPSHOT}" = "${app_version%-SNAPSHOT}" ] || { echo "package.json version differs from the pom"; exit 1; }
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports/
+          if-no-files-found: ignore
+
+      - name: Upload the bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: content-compliance-scan-bundle
+          path: target/content-compliance-scan-*.jar
+          retention-days: 14
